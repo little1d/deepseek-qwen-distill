@@ -11,15 +11,9 @@ dependencies = [
     "trl>=0.10.1",
     "peft>=0.14.0",
     "datasets>=2.14.4",
-    "flash-attn",
+    "python-dotenv>=1.0.1",
 ]
 
-[dependency-groups]
-dev = []
 
 [[tool.uv.index]]
 url = "https://download.pytorch.org/whl/cu121"
-
-
-[tool.uv]
-no-build-isolation-package = ["flash-attn"]

@@ -2,9 +2,8 @@
 
 #SBATCH --job-name=distill           
 #SBATCH --nodes=1                     
-#SBATCH --gres=gpu:4                 
+#SBATCH --gres=gpu:8                 
 #SBATCH --partition=vip_gpu_ailab     
 #SBATCH --account=ai4phys
 
-python training.py
-
+pip install flash-attn --no-build-isolation

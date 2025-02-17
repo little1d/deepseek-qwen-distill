@@ -5,9 +5,14 @@ from transformers import TrainingArguments
 from trl import SFTTrainer
 from datasets import load_dataset
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+HF_TOKEN = os.getenv("HF_TOKEN")
 # Load the dataset
 print("Start downloading Datasets")
-dataset = load_dataset("Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B", token="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")
+dataset = load_dataset("Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B", token=HF_TOKEN)
 dataset = dataset["train"]
 
 def format_instruction(example):
