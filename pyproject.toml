@@ -4,7 +4,14 @@ version = "0.0.1"
 description = "DeepSeek-R1 Distillation"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "markupsafe==2.1.3",
+]
 
 [dependency-groups]
-dev = []
+dev = [
+    "torch==2.4.1",
+]
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cu121"
