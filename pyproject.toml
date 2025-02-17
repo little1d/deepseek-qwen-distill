@@ -6,12 +6,20 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "markupsafe==2.1.3",
+    "torch==2.4.1",
+    "transformers>=4.48.3",
+    "trl>=0.10.1",
+    "peft>=0.14.0",
+    "datasets>=2.14.4",
+    "flash-attn",
 ]
 
 [dependency-groups]
-dev = [
-    "torch==2.4.1",
-]
+dev = []
 
 [[tool.uv.index]]
 url = "https://download.pytorch.org/whl/cu121"
+
+
+[tool.uv]
+no-build-isolation-package = ["flash-attn"]
