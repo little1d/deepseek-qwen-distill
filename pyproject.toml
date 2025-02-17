@@ -1,0 +1,10 @@
+[project]
+name = "deepseek-qwen-distill"
+version = "0.0.1"
+description = "DeepSeek-R1 Distillation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = []
