@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 # Load the dataset
-print("Start downloading Datasets")
+print("Downloading/Loading Datasets")
 dataset = load_dataset(
     "Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B", token=HF_TOKEN
 )
@@ -31,25 +31,21 @@ dataset = dataset["train"]
 
 def format_instruction(example):
     return {
-        "text": (
-            "<|im_start|>user\n"
-            f"{example['instruction']}\n"
-            "<|im_end|>\n"
-            "<|im_start|>assistant\n"
-            f"{example['response']}\n"
-            "<|im_end|>"
-        )
+        "<|im_start|>user\n"
+        f"{example['instruction']}\n"
+        "<|im_end|>\n"
+        "<|im_start|>assistant\n"
+        f"{example['response']}\n"
+        "<|im_end|>"
     }
 
 
-formatted_dataset = dataset.map(format_instruction, batched=False)
-formatted_dataset = formatted_dataset.train_test_split(
-    test_size=0.1
-)  # 90-10 train-test split
+# formatted_dataset = dataset.map(format_instruction, batched=False)
+dataset = dataset.train_test_split(test_size=0.1)  # 90-10 train-test split
 
 
 model_id = "Qwen/Qwen2.5-3B"
-print("Downloading model")
+print("Downloading/Loading model")
 tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
 
 # Data collator
@@ -102,12 +98,11 @@ training_args = TrainingArguments(
 trainer = SFTTrainer(
     model=model,
     args=training_args,
-    train_dataset=formatted_dataset["train"],
-    eval_dataset=formatted_dataset["test"],
-    data_collator=data_collator,
+    train_dataset=dataset["train"],
+    eval_dataset=dataset["test"],
+    formatting_func=format_instruction,
     peft_config=peft_config,
     callbacks=[swanlab_callback],
-    dataset_text_field="text",
 )
 
 # Start training
