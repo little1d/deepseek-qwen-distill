@@ -17,11 +17,18 @@ chat_pipeline = pipeline(
 )
 
 # Generate response
-prompt = """<|user|>
+# prompt = """<|user|>
+# <|end|>
+# <|assistant|>
+# """
+
+prompt = """<|im_start|>user
 What's the probability of rolling a 7 with two dice?
-<|end|>
-<|assistant|>
+<|im_end|>
+<|im_start|>assistant
+<|im_end|>
 """
+
 
 output = chat_pipeline(
     prompt,

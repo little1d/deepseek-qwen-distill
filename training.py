@@ -1,4 +1,8 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    DataCollatorForLanguageModeling,
+)
 import torch
 from peft import LoraConfig
 from transformers import TrainingArguments
@@ -7,9 +11,9 @@ from datasets import load_dataset
 from swanlab.integration.transformers import SwanLabCallback
 
 swanlab_callback = SwanLabCallback(
-    project='deepseek-qwen-distllation',
+    project="deepseek-qwen-distllation",
     experiment_name="Magpie-Reasoning-V2-250K",
-    description="直接使用 magpie 框架提供的 cot 数据集，在 trl 框架中利用 peft 进行 lora 微调"
+    description="直接使用 magpie 框架提供的 cot 数据集，在 trl 框架中利用 peft 进行 lora 微调",
 )
 
 import os
@@ -19,8 +23,11 @@ load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 # Load the dataset
 print("Start downloading Datasets")
-dataset = load_dataset("Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B", token=HF_TOKEN)
+dataset = load_dataset(
+    "Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B", token=HF_TOKEN
+)
 dataset = dataset["train"]
+
 
 def format_instruction(example):
     return {
@@ -28,14 +35,17 @@ def format_instruction(example):
             "<|im_start|>user\n"
             f"{example['instruction']}\n"
             "<|im_end|>\n"
-            "<|im_start|>assistant\n"  # 注意这里是 assistant 的正确拼写
+            "<|im_start|>assistant\n"
             f"{example['response']}\n"
             "<|im_end|>"
         )
     }
 
+
 formatted_dataset = dataset.map(format_instruction, batched=False)
-formatted_dataset = formatted_dataset.train_test_split(test_size=0.1)  # 90-10 train-test split
+formatted_dataset = formatted_dataset.train_test_split(
+    test_size=0.1
+)  # 90-10 train-test split
 
 
 model_id = "Qwen/Qwen2.5-3B"
@@ -47,7 +57,7 @@ data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 # Add custom tokens
 CUSTOM_TOKENS = ["<think>", "</think>"]
-tokenizer.add_special_tokens({"additional_special_tokens":CUSTOM_TOKENS})
+tokenizer.add_special_tokens({"additional_special_tokens": CUSTOM_TOKENS})
 tokenizer.pad_token = tokenizer.eos_token
 
 # Load model with flash-attention
@@ -57,7 +67,7 @@ model = AutoModelForCausalLM.from_pretrained(
     trust_remote_code=True,
     device_map="auto",
     torch_dtype=torch.float16,
-    attn_implementation="flash_attention_2"
+    attn_implementation="flash_attention_2",
 )
 
 model.resize_token_embeddings(len(tokenizer))
@@ -68,7 +78,7 @@ peft_config = LoraConfig(
     lora_dropout=0.2,  # Dropout rate
     target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],  # Target attention layers
     bias="none",  # No bias terms
-    task_type="CAUSAL_LM" # Task type
+    task_type="CAUSAL_LM",  # Task type
 )
 
 training_args = TrainingArguments(
@@ -86,7 +96,7 @@ training_args = TrainingArguments(
     optim="paged_adamw_32bit",
     max_grad_norm=0.3,
     warmup_ratio=0.03,
-    lr_scheduler_type="cosine"
+    lr_scheduler_type="cosine",
 )
 
 trainer = SFTTrainer(
