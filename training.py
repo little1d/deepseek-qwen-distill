@@ -4,6 +4,13 @@ from peft import LoraConfig
 from transformers import TrainingArguments
 from trl import SFTTrainer
 from datasets import load_dataset
+from swanlab.integration.transformers import SwanLabCallback
+
+swanlab_callback = SwanLabCallback(
+    project='deepseek-qwen-distllation',
+    experiment_name="Magpie-Reasoning-V2-250K",
+    description="直接使用 magpie 框架提供的 cot 数据集，在 trl 框架中利用 peft 进行 lora 微调"
+)
 
 import os
 from dotenv import load_dotenv
@@ -82,16 +89,19 @@ training_args = TrainingArguments(
     lr_scheduler_type="cosine"
 )
 
-
 trainer = SFTTrainer(
     model=model,
     args=training_args,
     train_dataset=formatted_dataset["train"],
     eval_dataset=formatted_dataset["test"],
     data_collator=data_collator,
+    peft_config=peft_config,
+    callbacks=[swanlab_callback],
+    dataset_text_field="text",
 )
 
 # Start training
+print("Start Training")
 trainer.train()
 trainer.save_model("./qwen2.5-3b-deepseek-finetuned")
 

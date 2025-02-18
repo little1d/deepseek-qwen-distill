@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=distill           
+#SBATCH --job-name=distillation        
 #SBATCH --nodes=1                     
 #SBATCH --gres=gpu:4                 
 #SBATCH --partition=vip_gpu_ailab     
