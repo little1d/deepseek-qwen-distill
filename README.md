@@ -20,35 +20,16 @@ Magpie-Reasoning-V2 数据集，其中包含由 DeepSeek-R1 生成的 250K CoT �
 
 将数据集构造成如下的聊天模板格式：
 
-- <|user|>：用户询问的开始。
-- <|assistant|>：模型响应的开始。
-- <|end|>：一轮结束。
-  > 每个 LLM 使用特定的指令和任务格式。将数据集与这种结构对其可以确保模型学习到正确的回话模式。所以一定要根据你想要蒸馏的模型来格式化数据
-
 ```python
-from datasets import load_dataset
-
-# Load the dataset
-dataset = load_dataset("Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B", token="YOUR_HF_TOKEN")
-dataset = dataset["train"]
-
-# Format the dataset
-def format_instruction(example):
- return {
- "text": (
- "<|user|>\n"
- f"{example['instruction']}\n"
- "<|end|>\n"
- "<|assistant|>\n"
- f"{example['response']}\n"
- "<|end|>"
-)
-}
-
-
-formatted_dataset = dataset.map(format_instruction, batched=False, remove_columns=subset_dataset.column_names)
-formatted_dataset = formatted_dataset.train_test_split(test_size=0.1)  # 90-10 train-test split
+"<|im_start|>user\n"
+f"{example['instruction']}\n"
+"<|im_end|>\n"
+"<|im_start|>assistant\n"
+f"{example['response']}\n"
+"<|im_end|>"
 ```
+
+> 每个 LLM 使用特定的指令和任务格式。将数据集与这种结构对其可以确保模型学习到正确的回话模式。所以一定要根据你想要蒸馏的模型来格式化数据
 
 ## 环境安装
 
