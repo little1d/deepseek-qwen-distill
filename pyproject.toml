@@ -12,8 +12,11 @@ dependencies = [
     "peft>=0.14.0",
     "datasets>=2.14.4",
     "python-dotenv>=1.0.1",
+    "tqdm",
+    "pre-commit>=4.1.0",
+    "ruff>=0.9.6",
 ]
 
 
-[[tool.uv.index]]
-url = "https://download.pytorch.org/whl/cu121"
+#[[tool.uv.index]]
+#url = "https://download.pytorch.org/whl/cu121"
