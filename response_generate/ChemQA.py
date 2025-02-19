@@ -10,7 +10,7 @@ def process_chunk(start, end):
     """处理数据块的任务函数"""
     client = OpenAI(
         # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
-        api_key="sk-4526bc64cacd45ce9956a5ce05ac284e",
+        api_key="sk-xxx",  # <YOUR_API_KEY>
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
     )
     chunk_responses = []
