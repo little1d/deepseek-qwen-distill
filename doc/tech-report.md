@@ -122,7 +122,8 @@ peft_config = LoraConfig(
 
 - 魔搭社区代码仓库：<https://www.modelscope.cn/studios/yzachary/ChemReasoner/files>
 - SwanLab 日志：<https://swanlab.cn/@Harrison/deepseek-qwen-distllation/overview>
-- 开源模型权重：
-- Demo 体验：
+- 开源模型权重：https://www.modelscope.cn/models/framehehe/distill-folder/files
+- Demo 体验：暂无（模型文件太大了，还在上传，可参考本地 gradio 界面）
+<img width="1300" alt="image" src="https://github.com/user-attachments/assets/74402aaf-2067-4957-b920-5d476e94bfee" />
 - Github 代码仓库: <https://github.com/little1d/deepseek-qwen-distill>  可能比魔搭社区代码仓库新
-- report 链接：
+- report 链接：https://github.com/little1d/deepseek-qwen-distill/edit/main/doc/tech-report.md
