@@ -5,13 +5,13 @@ from transformers import (
 import torch
 from peft import LoraConfig
 from trl import SFTTrainer, SFTConfig
-from datasets import load_dataset, Dataset
+from datasets import load_dataset
 from swanlab.integration.transformers import SwanLabCallback
 
 swanlab_callback = SwanLabCallback(
     project="deepseek-qwen-distllation",
-    experiment_name="Magpie-Reasoning-V2-250K",
-    description="直接使用 magpie 框架提供的 cot 数据集（50000条），在 trl 框架中利用 peft 进行 lora 微调",
+    experiment_name="MoleculeQA-Reasoning-V2-100",
+    description="使用R1 蒸馏出来的 100 条数据，在 trl 框架中利用 peft 进行 lora 微调",
 )
 
 import os
@@ -26,12 +26,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 print("Downloading/Loading Datasets")
 # stage-1 datasets:  "Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B"
 # stage-2 datasets:  "FaceWithTearsofJoy/moleculeqa_COT_corrected"
-dataset = load_dataset(
-    "Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B", token=HF_TOKEN
-)
-# 从 250,000 条数据中选50000条进行蒸馏测试
-dataset = dataset["train"][:50000]
-dataset = Dataset.from_dict(dataset)
+dataset = load_dataset("FaceWithTearsofJoy/moleculeqa_COT_corrected", token=HF_TOKEN)
 
 dataset = dataset["train"]
 
@@ -57,21 +52,42 @@ formatted_dataset = formatted_dataset.train_test_split(
     test_size=0.1
 )  # 90-10 train-test split
 
-# ---------------------------------- stage-1  model/tokenizer load  ----------------------------------
 
-model_id = "Qwen/Qwen2.5-3B"
+# ---------------------------------- stage-2  model/tokenizer load  ----------------------------------
+model_id_stage_1 = "/home/bingxing2/ailab/yangzhuo/deepseek-qwen-distill/qwen2.5-3b-deepseek-finetuned-final-stage1"
 
-print("Downloading/Loading model")
+# 加载 tokenizer （集成第一次训练的所有更改）
+print("Loading tokenizer from stage 1...")
 tokenizer = AutoTokenizer.from_pretrained(
-    model_id,
+    model_id_stage_1,
     trust_remote_code=True,
     padding_side="right",
 )
-tokenizer.pad_token = tokenizer.eos_token
 
-# Add custom tokens
-CUSTOM_TOKENS = ["<think>", "</think>"]
-tokenizer.add_special_tokens({"additional_special_tokens": CUSTOM_TOKENS})
+# 自动设置pad_token（继承第一次训练的配置）
+# if tokenizer.pad_token is None:
+#     tokenizer.pad_token = tokenizer.eos_token
+
+
+print("Loading model ...")
+
+# 先加载基础模型
+model = AutoModelForCausalLM.from_pretrained(
+    model_id_stage_1,
+    trust_remote_code=True,
+    device_map="auto",
+    torch_dtype=torch.float16,
+    attn_implementation="flash_attention_2",
+)
+# model.resize_token_embeddings(len(tokenizer))
+
+
+# 验证tokenizer与模型一致性
+print(f"Tokenizer length: {len(tokenizer)}")
+print(f"Model embedding size: {model.get_input_embeddings().weight.size(0)}")
+
+
+# ---------------------------------- tokenization ----------------------------------
 
 
 def tokenize_function(examples):
@@ -85,21 +101,8 @@ train_dataset = train_dataset.map(tokenize_function, batched=True)
 test_dataset = formatted_dataset["test"]
 test_dataset = test_dataset.map(tokenize_function, batched=True)
 
-# Load model with flash-attention
-
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    trust_remote_code=True,
-    device_map="auto",
-    torch_dtype=torch.float16,
-    attn_implementation="flash_attention_2",
-)
-
-model.resize_token_embeddings(len(tokenizer))
-
 
 # ---------------------------------- training ----------------------------------
-
 
 peft_config = LoraConfig(
     r=8,  # Rank of the low-rank matrices
@@ -115,10 +118,10 @@ peft_config = LoraConfig(
 # stage-2: "./qwen2.5-3b-deepseek-finetuned-stage-2"
 
 training_args = SFTConfig(
-    output_dir="./qwen2.5-3b-deepseek-finetuned-stage-1",
+    output_dir="./qwen2.5-3b-deepseek-finetuned-stage2",
     num_train_epochs=5,  # 2 in stage-1, 5 in stage-2
     per_device_train_batch_size=4,  # 2 in stage-1, 4 in stage-2
-    # per_device_eval_batch_size=2, # 2 in stage-1, comment in stage-2, because we don't have eval datasets
+    per_device_eval_batch_size=4,  # 2 in stage-1, 4 in stage-2
     gradient_accumulation_steps=4,
     eval_strategy="epoch",
     save_strategy="epoch",
@@ -146,10 +149,10 @@ trainer = SFTTrainer(
 # Start training
 print("Start Training")
 trainer.train()
-trainer.save_model("./qwen2.5-3b-deepseek-finetuned-stage1")
+trainer.save_model("./qwen2.5-3b-deepseek-finetuned-stage2")
 
 
 # merge and unload
 final_model = trainer.model.merge_and_unload()
-final_model.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final-stage1")
-tokenizer.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final-stage1")
+final_model.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final-stage2")
+tokenizer.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final-stage2")
