@@ -10,4 +10,4 @@ playground
 build_flash_attn.sh
 
 # model file
-qwen2.5-3b-deepseek-finetuned/
+qwen2.5-3b-deepseek-finetuned-*/

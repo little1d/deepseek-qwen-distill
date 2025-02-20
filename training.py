@@ -155,10 +155,10 @@ trainer = SFTTrainer(
 # Start training
 print("Start Training")
 trainer.train()
-trainer.save_model("./qwen2.5-3b-deepseek-finetuned")
+trainer.save_model("./qwen2.5-3b-deepseek-finetuned-stage1")
 
 
 # merge and unload
 final_model = trainer.model.merge_and_unload()
-final_model.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final")
-tokenizer.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final")
+final_model.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final-stage1")
+tokenizer.save_pretrained("./qwen2.5-3b-deepseek-finetuned-final-stage1")
