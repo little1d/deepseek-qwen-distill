@@ -3,7 +3,8 @@
 .env
 
 # debug file
-playground
+playground/
+swanlog/
 .slurm-*.out
 
 # shell 
