@@ -5,12 +5,12 @@
 # debug file
 playground/
 swanlog/
-.slurm-*.out
+slurm-*.out
 
 # shell 
-build_flash_attn.sh
-inference.sh
-start_app.sh
+./build_flash_attn.sh
+./inference.sh
+./start_app.sh
 
 # model file
 qwen2.5-3b-deepseek-finetuned-*/

@@ -4,8 +4,6 @@ from datasets import load_dataset, Dataset
 import re
 import swanlab
 
-swanlab.login(api_key="tSGp3IsD7uFZHaBax6NC4")
-
 exp = swanlab.init(
     project="deepseek-qwen-distllation",
     experiment_name="benchmark",
@@ -61,7 +59,7 @@ def evaluate_benchmark():
     total_samples = len(dataset)
 
     for sample_idx, sample in enumerate(dataset):
- 
+
         for model_name, model in models.items():
             response = model.generate(sample["question"])
             response = swanlab.Text(response)
