@@ -1,5 +1,0 @@
-error: unrecognized subcommand 'app.py'
-
-Usage: uv python [OPTIONS] <COMMAND>
-
-For more information, try '--help'.
