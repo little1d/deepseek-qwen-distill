@@ -7,3 +7,4 @@
 #SBATCH --account=ai4phys
 
 python inference.py
+
