@@ -1,5 +1,8 @@
 # 蒸馏 DeepSeek-R1 知识到自定义小模型
 
+[![](https://raw.githubusercontent.com/SwanHubX/assets/main/badge2.svg)](https://swanlab.cn/@Harrison/deepseek-qwen-distllation/overview)
+[![](https://raw.githubusercontent.com/SwanHubX/assets/main/badge1.svg)](https://swanlab.cn/@Harrison/deepseek-qwen-distllation/overview)
+
 ## 数据集介绍
 
 Magpie-Reasoning-V2 数据集，其中包含由 DeepSeek-R1 生成的 250K CoT 推理样本。这些样本涵盖了数学推理、编码和一般问题解决等不同的任务。
